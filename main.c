@@ -6,7 +6,7 @@
 /*   By: aelkhali <aelkhali@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 18:43:36 by aelkhali          #+#    #+#             */
-/*   Updated: 2023/02/21 18:10:09 by aelkhali         ###   ########.fr       */
+/*   Updated: 2023/02/21 20:31:00 by aelkhali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,22 +54,26 @@ int	ft_atoi(const char *str)
 	return (result * sign);
 }
 
-void	print_status(t_philo *philosopher, char *status)
+size_t	get_time(void)
 {
 	struct timeval	current_time;
-	int				time_ms;
+	size_t				time;
 
 	gettimeofday(&current_time, NULL);
-	time_ms = (current_time.tv_sec * 1000) + (current_time.tv_usec / 1000);
+	time = (current_time.tv_sec * 1000) + (current_time.tv_usec / 1000);
+	return (time);
+}
+void	print_status(t_philo *philosopher, char *status)
+{
 	pthread_mutex_lock(philosopher->data->print_lock);
-	printf("%d %d %s\n", time_ms, philosopher->id, status);
+	printf("%6lu %d %s\n",get_time() - philosopher->data->starting_time, philosopher->id, status);
 	pthread_mutex_unlock(philosopher->data->print_lock);
 }
 
+
 int	check_init_data(t_data *data, int ac, char **av)
 {
-	int				i;
-	struct 			timeval	current_time;
+	int				i; 
 
 	if (ac < 5 || ac > 6)
 	{
@@ -93,32 +97,44 @@ int	check_init_data(t_data *data, int ac, char **av)
 		data->num_times_to_eat = ft_atoi(av[5]);
 	data->print_lock = malloc (sizeof(pthread_mutex_t));
 	pthread_mutex_init(data->print_lock, NULL);
-	gettimeofday(&current_time, NULL);
-	data->starting_time = (current_time.tv_sec * 1000) + (current_time.tv_usec / 1000);
+	data->starting_time = get_time();
 	return (EXIT_SUCCESS);
+}
+
+void ft_usleep(size_t time)
+{
+	size_t tm;
+	tm = get_time();
+	usleep(time - 10000);
+	while (1)
+	{
+		if (get_time() - tm >= time / 1000)
+			break;
+		usleep(200);
+	}
 }
 
 void	*routine(void *philo)
 {
 	t_philo	*philosopher;
-	struct timeval	current_time;
 
 	philosopher = philo;
+	if (philosopher->id % 2 == 0)
+		usleep(60);
 	while (1)
 	{
 		pthread_mutex_lock(philosopher->left_fork);
+		print_status(philosopher, "has taken a fork");
 		pthread_mutex_lock(philosopher->right_fork);
 		print_status(philosopher, "has taken a fork");
-		print_status(philosopher, "has taken a fork");
 		print_status(philosopher, "is eating");
-		usleep(philosopher->data->time_to_eat * 1000);
-		philosopher->eat_count++;
-		gettimeofday(&current_time, NULL);
-		philosopher->tm_last_meal = (current_time.tv_sec * 1000) + (current_time.tv_usec / 1000) - philosopher->data->starting_time;
-		pthread_mutex_unlock(philosopher->right_fork);
+		ft_usleep(philosopher->data->time_to_eat * 1000);
 		pthread_mutex_unlock(philosopher->left_fork);
+		pthread_mutex_unlock(philosopher->right_fork);
+		philosopher->eat_count++;
+		philosopher->tm_last_meal = get_time();
 		print_status(philosopher, "is sleeping");
-		usleep(philosopher->data->time_to_sleep * 1000);
+		ft_usleep(philosopher->data->time_to_sleep * 1000);
 		print_status(philosopher, "is thinking");
 	}
 }
@@ -148,21 +164,23 @@ int	main(int ac, char **av)
 	while (++i < data->num_philos)
 	{
 		memset(&philos[i], 0, sizeof(t_philo));
-		philos[i].id = i;
+		philos[i].id = i + 1;
 		philos[i].left_fork = forks + i;
 		philos[i].right_fork = forks + i + 1;
 		if (i == data->num_philos - 1)
 			philos[i].right_fork = forks;
 	}
 	
-	//threads creation for philosophers
+	//threads creation for philosopher
 	i = -1;
 	while (++i < data->num_philos)
 	{
 		philos[i].data = data;
+		philos[i].tm_last_meal = get_time();
 		pthread_create(&philos[i].thread, NULL, routine, &philos[i]);
+		usleep(60);
 	}
-	tmp = 0;
+	tmp = 1;
 	flag = 1;
 	while (flag)
 	{
@@ -180,14 +198,14 @@ int	main(int ac, char **av)
 				}
 					
 			}
-			if (philos[i].tm_last_meal > data->time_to_die)
+			if (get_time() - philos[i].tm_last_meal >= data->time_to_die)
 			{
-				print_status(&philos[i], "died");
+				pthread_mutex_lock(data->print_lock);
+				printf("%6lu %d %s\n",get_time() - data->starting_time, philos[i].id, "died");
 				flag = 0;
 				break;
 			}
 		}
 	}
-	// clean up the program
 	return (EXIT_SUCCESS);
 }
