@@ -6,7 +6,7 @@
 /*   By: aelkhali <aelkhali@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 18:43:31 by aelkhali          #+#    #+#             */
-/*   Updated: 2023/02/21 18:10:24 by aelkhali         ###   ########.fr       */
+/*   Updated: 2023/02/22 12:09:46 by aelkhali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,10 @@
 typedef struct philos_data
 {
     int				num_philos;
-    int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
-	int				starting_time;
+    size_t				time_to_die;
+	size_t				time_to_eat;
+	size_t				time_to_sleep;
+	size_t				starting_time;
 	int				num_times_to_eat; // optional
 	int				philos_finished;
 	int				is_alive;
@@ -39,7 +39,7 @@ typedef struct  philosopher_t
 	int				id;
 	int				eat_count;
 	int				max_eat_count;
-	int				tm_last_meal;
+	size_t				tm_last_meal;
 	pthread_mutex_t	*left_fork;
 	pthread_mutex_t	*right_fork;
 	t_data			*data;
