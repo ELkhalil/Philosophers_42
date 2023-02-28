@@ -6,7 +6,7 @@
 #    By: aelkhali <aelkhali@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/11 18:43:34 by aelkhali          #+#    #+#              #
-#    Updated: 2023/02/11 19:21:57 by aelkhali         ###   ########.fr        #
+#    Updated: 2023/02/28 16:30:37 by aelkhali         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ STOP = \033[0m
 
 # Commands And Flags : 
 CC = cc
-FLAGS = -Wall -Wextra -Werror -g -pthread #-fsanitize=address -g
+FLAGS = -Wall -Wextra -Werror -g -pthread -fsanitize=thread -g
 SRCS = main.c
 RM = rm -rf
 

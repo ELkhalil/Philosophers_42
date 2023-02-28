@@ -6,7 +6,7 @@
 /*   By: aelkhali <aelkhali@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/11 18:43:36 by aelkhali          #+#    #+#             */
-/*   Updated: 2023/02/21 20:31:00 by aelkhali         ###   ########.fr       */
+/*   Updated: 2023/02/28 16:34:19 by aelkhali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ size_t	get_time(void)
 	time = (current_time.tv_sec * 1000) + (current_time.tv_usec / 1000);
 	return (time);
 }
+
 void	print_status(t_philo *philosopher, char *status)
 {
 	pthread_mutex_lock(philosopher->data->print_lock);
@@ -96,7 +97,9 @@ int	check_init_data(t_data *data, int ac, char **av)
 	if (ac == 6)
 		data->num_times_to_eat = ft_atoi(av[5]);
 	data->print_lock = malloc (sizeof(pthread_mutex_t));
+	data->lock = malloc (sizeof(pthread_mutex_t));
 	pthread_mutex_init(data->print_lock, NULL);
+	pthread_mutex_init(data->lock, NULL);
 	data->starting_time = get_time();
 	return (EXIT_SUCCESS);
 }
@@ -131,14 +134,16 @@ void	*routine(void *philo)
 		ft_usleep(philosopher->data->time_to_eat * 1000);
 		pthread_mutex_unlock(philosopher->left_fork);
 		pthread_mutex_unlock(philosopher->right_fork);
+		pthread_mutex_lock(philosopher->data->lock);
 		philosopher->eat_count++;
 		philosopher->tm_last_meal = get_time();
+		pthread_mutex_unlock(philosopher->data->lock);
 		print_status(philosopher, "is sleeping");
 		ft_usleep(philosopher->data->time_to_sleep * 1000);
 		print_status(philosopher, "is thinking");
 	}
 }
-
+	
 int	main(int ac, char **av)
 {
 	pthread_mutex_t *forks;
@@ -171,7 +176,7 @@ int	main(int ac, char **av)
 			philos[i].right_fork = forks;
 	}
 	
-	//threads creation for philosopher
+	//threads creation and starting philosopher simulations
 	i = -1;
 	while (++i < data->num_philos)
 	{
@@ -180,6 +185,8 @@ int	main(int ac, char **av)
 		pthread_create(&philos[i].thread, NULL, routine, &philos[i]);
 		usleep(60);
 	}
+	
+	// supervisor 
 	tmp = 1;
 	flag = 1;
 	while (flag)
@@ -196,8 +203,8 @@ int	main(int ac, char **av)
 					flag = 0;
 					break;
 				}
-					
 			}
+			pthread_mutex_lock(data->lock);
 			if (get_time() - philos[i].tm_last_meal >= data->time_to_die)
 			{
 				pthread_mutex_lock(data->print_lock);
@@ -205,7 +212,17 @@ int	main(int ac, char **av)
 				flag = 0;
 				break;
 			}
+			pthread_mutex_unlock(data->lock);
 		}
 	}
+
+	// cleaning everything 
+	while(++i < data->num_philos)
+		pthread_mutex_destroy(&forks[i]);
+	free(data->print_lock);
+	free(data->lock);
+	free(data);
+	free(philos);
+	free(forks);
 	return (EXIT_SUCCESS);
 }
