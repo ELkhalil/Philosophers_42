@@ -6,7 +6,7 @@
 /*   By: aelkhali <aelkhali@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/28 20:17:59 by aelkhali          #+#    #+#             */
-/*   Updated: 2023/03/01 17:57:11 by aelkhali         ###   ########.fr       */
+/*   Updated: 2023/03/01 20:12:40 by aelkhali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@ void	ft_usleep(size_t time)
 	size_t	tmp_time;
 
 	tmp_time = get_time();
-	usleep(time - 10000);
 	while (1)
 	{
 		if (get_time() - tmp_time >= time / 1000)
