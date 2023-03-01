@@ -1,32 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   get_time.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aelkhali <aelkhali@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/11 18:43:36 by aelkhali          #+#    #+#             */
-/*   Updated: 2023/03/01 17:54:45 by aelkhali         ###   ########.fr       */
+/*   Created: 2023/02/28 18:40:50 by aelkhali          #+#    #+#             */
+/*   Updated: 2023/02/28 20:42:27 by aelkhali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosophers.h"
+#include "../philosophers.h"
 
-int	main(int ac, char **av)
+size_t	get_time(void)
 {
-	t_data	*data;
-	t_philo	*philos;
+	struct timeval	current_time;
+	size_t			time;
 
-	if (check_args_errors(ac, av))
-		return (EXIT_FAILURE);
-	data = init_data(ac, av);
-	if (!data)
-		return (EXIT_FAILURE);
-	philos = philosophers(data->num_philos);
-	if (!philos)
-		return (EXIT_FAILURE);
-	init_threads(data, philos);
-	controller(data, philos);
-	clean_memory(data, philos);
-	return (EXIT_SUCCESS);
+	gettimeofday(&current_time, NULL);
+	time = (current_time.tv_sec * 1000) + (current_time.tv_usec / 1000);
+	return (time);
 }

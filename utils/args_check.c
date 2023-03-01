@@ -1,32 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   args_check.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aelkhali <aelkhali@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/11 18:43:36 by aelkhali          #+#    #+#             */
-/*   Updated: 2023/03/01 17:54:45 by aelkhali         ###   ########.fr       */
+/*   Created: 2023/02/28 18:21:19 by aelkhali          #+#    #+#             */
+/*   Updated: 2023/03/01 13:49:34 by aelkhali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philosophers.h"
+#include "../philosophers.h"
 
-int	main(int ac, char **av)
+int	check_args_errors(int ac, char **av)
 {
-	t_data	*data;
-	t_philo	*philos;
+	int	i;
 
-	if (check_args_errors(ac, av))
-		return (EXIT_FAILURE);
-	data = init_data(ac, av);
-	if (!data)
-		return (EXIT_FAILURE);
-	philos = philosophers(data->num_philos);
-	if (!philos)
-		return (EXIT_FAILURE);
-	init_threads(data, philos);
-	controller(data, philos);
-	clean_memory(data, philos);
+	i = 0;
+	if (ac < 5 || ac > 6)
+		return (printf("Wrong number of arguments\n"), EXIT_FAILURE);
+	while (av[++i])
+		if (ft_atoi(av[i]) == 0 || ft_atoi(av[i]) == -1)
+			return (printf("Try with > 0 Number\n"), EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }

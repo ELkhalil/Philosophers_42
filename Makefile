@@ -6,7 +6,7 @@
 #    By: aelkhali <aelkhali@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/02/11 18:43:34 by aelkhali          #+#    #+#              #
-#    Updated: 2023/02/11 19:21:57 by aelkhali         ###   ########.fr        #
+#    Updated: 2023/03/01 18:17:07 by aelkhali         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,12 +23,13 @@ STOP = \033[0m
 
 # Commands And Flags : 
 CC = cc
-FLAGS = -Wall -Wextra -Werror -g -pthread #-fsanitize=address -g
+FLAGS = -Wall -Wextra -Werror -pthread #-fsanitize=thread -g
 SRCS = main.c
 RM = rm -rf
 
 # loading source files : 
-SRCS = main.c
+SRCS = main.c utils/args_check.c utils/ft_atoi.c utils/get_time.c utils/init_data.c \
+		utils/philosopher.c utils/supervisor.c utils/clean_memory.c
 
 # Makefile required rules :
 all : $(NAME)
